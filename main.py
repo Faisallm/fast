@@ -1,11 +1,27 @@
 from fastapi import FastAPI
-from fastapi.params import Body
 from pydantic import BaseModel
 from typing import Optional
+from random import randrange
 
 # the name of the function never matters
 
 app = FastAPI()
+
+my_posts = [
+    {
+        'title': "LLM's  Large Language Models", 
+        "content": "Attention is all you need", 
+        "published": "false", 
+        "rating": "3",
+        "id": 1 
+        },
+    {
+        'title': "Deep Learning", 
+        "content": "The cool kid getting all the attention.", 
+        "published": "true", 
+        "rating": "1",
+        "id": 2 
+        }]
 
 # we need to define how  our model should look like
 # 
@@ -25,20 +41,24 @@ def root():
 
 @app.get('/posts')
 def get_posts():
-    return {"data": "These are your posts"}
+    return {"data": my_posts}
 
 # extract all the data from the body.
 # store in a python dictionary (since its json in the body)
 # store in a variable called payload
 
 # pydantic will validate the data for us.
-@app.post("/createposts")
-def create_posts(new_post: Post):
-    print(new_post)
-    print(new_post.published)
+@app.post("/posts")
+def create_posts(post: Post):
+    rand_int = randrange(0, 10000000)
+    # convert the pydantic post schema...
+    # into a dictionary
+    new_post = post.dict()
+    new_post['id'] = rand_int
     # store it to db  or something
+    my_posts.append(new_post)
     # return some validation
-    return  {"data":  f"new_post"}
+    return  {"data":  new_post}
     
 
 
