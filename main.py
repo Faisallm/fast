@@ -25,6 +25,13 @@ my_posts = [
 
 # we need to define how  our model should look like
 # 
+
+def find_post(id):
+    post = [post for post in my_posts if post['id'] == id]
+    if len(post) > 0:
+        return post[0]
+    return None
+
 class Post(BaseModel):
     title: str
     content: str
@@ -60,5 +67,14 @@ def create_posts(post: Post):
     # return some validation
     return  {"data":  new_post}
     
-
+# this is a path parameter
+# anytime we have a path parameter its 
+# going to be returned as a string.
+@app.get("/posts/{id}")
+def get_post(id: int):
+    print(type(id))
+    post = find_post(id)
+    print(post)
+    return  {"post_detail": post}
+    
 
