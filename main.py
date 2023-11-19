@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 from random import randrange
@@ -27,10 +27,9 @@ my_posts = [
 # 
 
 def find_post(id):
-    post = [post for post in my_posts if post['id'] == id]
-    if len(post) > 0:
-        return post[0]
-    return None
+    for p in my_posts:
+        if p['id'] == id:
+            return p
 
 class Post(BaseModel):
     title: str
@@ -66,15 +65,27 @@ def create_posts(post: Post):
     my_posts.append(new_post)
     # return some validation
     return  {"data":  new_post}
-    
+
+@app.get("/posts/latest")
+def get_latest_posts():
+    latest_post = my_posts[len(my_posts)-1]
+    return {"data": latest_post}
+
 # this is a path parameter
 # anytime we have a path parameter its 
 # going to be returned as a string.
+# converting the string to int using
+# id: int
 @app.get("/posts/{id}")
-def get_post(id: int):
-    print(type(id))
+def get_post(id: int, response: Response):
     post = find_post(id)
     print(post)
+    if not post:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"post with (id:{id}) was not found!")
+        # response.status_code = status.HTTP_404_NOT_FOUND
+        # return {"message": f"post with (id:{id}) was not found!"}
+        
     return  {"post_detail": post}
     
 
